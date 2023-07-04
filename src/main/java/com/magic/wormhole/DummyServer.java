@@ -4,48 +4,52 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.ServerSocket;
-import java.net.Socket;
+import java.net.InetSocketAddress;
+import java.nio.channels.FileChannel;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 @Component
 public class DummyServer implements ApplicationRunner {
 
+    private final FileExchanger fileExchanger = new FileExchanger();
+
+    private final Path receivingPath = Paths.get("C:\\Users\\ITWORK\\Desktop\\out");
     private final ExecutorService executors = Executors.newCachedThreadPool();
 
     @Override
     public void run(ApplicationArguments args) {
-        try (ServerSocket serverSocket = new ServerSocket(4444)) {
+
+        try(var serverChannel = ServerSocketChannel.open()) {
+            serverChannel.bind(new InetSocketAddress(6666));
+
+            System.out.println("Server is listening...");
             while (true) {
-                Socket clientSocket = serverSocket.accept();
-                executors.submit(() -> connect(clientSocket));
+                var clientChannel = serverChannel.accept();
+                executors.submit(() -> handleConnection(clientChannel));
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    private void connect(Socket clientSocket) {
-        try (Socket socket = clientSocket;
-             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
-
-            readPings(in, out);
+    private void handleConnection(SocketChannel socketChannel) {
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd.hh.mm.ss");
+        String formattedDate = dateTimeFormatter.format(now);
+        String fileName = "incoming_" + formattedDate + ".pdf";
+        try (var fileChannel = FileChannel.open(Paths.get(receivingPath.toString(), fileName), StandardOpenOption.CREATE, StandardOpenOption.WRITE)){
+            System.out.println("handling incoming request...will attempt to save to: " + receivingPath);
+            fileExchanger.receiveFile(socketChannel, fileChannel);
         } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private void readPings(BufferedReader in, PrintWriter out) throws Exception {
-        String inputLine;
-        while ((inputLine = in.readLine()) != null) {
-            System.out.println("server received: " + inputLine);
-            out.println("server acknowledges!!!");
-            Thread.sleep(500);
+            e.printStackTrace();
         }
     }
 }

@@ -29,7 +29,7 @@ public class FileExchanger {
     }
 
     public void receiveFile(ReadableByteChannel fromChannel, FileChannel toChannel) {
-        try {
+        try (fromChannel; toChannel){
             ByteBuffer buffer = ByteBuffer.allocateDirect(4096);
             int bytesRead = fromChannel.read(buffer);
             while (bytesRead != -1) {

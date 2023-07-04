@@ -1,14 +1,12 @@
 package com.magic.wormhole;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import picocli.CommandLine;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.Socket;
+import java.net.InetSocketAddress;
 import java.nio.channels.FileChannel;
+import java.nio.channels.SocketChannel;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
@@ -17,35 +15,31 @@ import java.nio.file.StandardOpenOption;
 public class SenderCommand implements Runnable {
 
     @CommandLine.Option(names = "-p", required = true, description = "Path of the file")
-    Path filePath;
+    private Path filePath;
 
-    @Autowired
-    private FileExchanger fileExchanger;
+    private final FileExchanger fileExchanger = new FileExchanger();
+
     @Override
     public void run() {
-        System.out.println("sender called with path: " + filePath);
-        doStuff();
+        send();
     }
 
-    public void doStuff() {
-        try (var socket = new Socket("127.0.0.1", 4444);
-             var out = new PrintWriter(socket.getOutputStream(), true);
-             var in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
-            ping(out, in);
+    private void send() {
+        try (var fromChannel = FileChannel.open(filePath, StandardOpenOption.READ);
+             var socketChannel = SocketChannel.open(new InetSocketAddress("localhost", 6666))) {
 
-            //is  this bad since it's not ARM'd
-            fileExchanger.sendFile(FileChannel.open(filePath, StandardOpenOption.READ), socket.getChannel());
+            if (Files.exists(filePath)) {
+                System.out.println("Sending file over network, filename: " + filePath);
+                fileExchanger.sendFile(fromChannel, socketChannel);
+            } else {
+                System.out.println("Provide a file with the -p=<path> arg");
+            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    private void ping(PrintWriter out, BufferedReader in) throws Exception {
-        for (int i = 0; i < 10; i++) {
-            out.println("hello from sender: " + i);
-            String resp = in.readLine();
-            System.out.println(resp);
-            Thread.sleep(500);
-        }
+    public Path getFilePath() {
+        return filePath;
     }
 }

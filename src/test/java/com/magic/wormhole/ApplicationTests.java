@@ -32,6 +32,6 @@ class ApplicationTests {
 
         var sender = (SenderCommand) subcommand.commandSpec().userObject();
 
-        assertEquals("C:\\Projects", sender.filePath.toString());
+        assertEquals("C:\\Projects", sender.getFilePath().toString());
     }
 }
