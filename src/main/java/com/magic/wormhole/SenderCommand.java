@@ -20,7 +20,7 @@ public class SenderCommand implements Runnable {
     Path filePath;
 
     @Autowired
-    private Sender sender;
+    private FileExchanger fileExchanger;
     @Override
     public void run() {
         System.out.println("sender called with path: " + filePath);
@@ -33,7 +33,8 @@ public class SenderCommand implements Runnable {
              var in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
             ping(out, in);
 
-            sender.sendFile(FileChannel.open(filePath, StandardOpenOption.READ), socket.getChannel());
+            //is  this bad since it's not ARM'd
+            fileExchanger.sendFile(FileChannel.open(filePath, StandardOpenOption.READ), socket.getChannel());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
