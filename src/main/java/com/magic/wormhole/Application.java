@@ -27,6 +27,6 @@ public class Application {
     }
 
     private static void runApp(String[] args) {
-        SpringApplication.exit(SpringApplication.run(Application.class, args));
+        SpringApplication.run(Application.class, args);
     }
 }
