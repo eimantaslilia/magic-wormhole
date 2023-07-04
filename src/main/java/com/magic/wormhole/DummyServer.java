@@ -21,7 +21,6 @@ public class DummyServer implements ApplicationRunner {
     public void run(ApplicationArguments args) {
         try (ServerSocket serverSocket = new ServerSocket(4444)) {
             while (true) {
-                System.out.println("Server is waiting for new connection...");
                 Socket clientSocket = serverSocket.accept();
                 executors.submit(() -> connect(clientSocket));
             }
@@ -30,19 +29,23 @@ public class DummyServer implements ApplicationRunner {
         }
     }
 
-    private void connect(Socket socket) {
-        try {
-            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+    private void connect(Socket clientSocket) {
+        try (Socket socket = clientSocket;
+             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
 
-            String inputLine;
-            while ((inputLine = in.readLine()) != null) {
-                System.out.println("server received: " + inputLine);
-                out.println("server acknowledges!!!");
-                Thread.sleep(1000);
-            }
+            readPings(in, out);
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private void readPings(BufferedReader in, PrintWriter out) throws Exception {
+        String inputLine;
+        while ((inputLine = in.readLine()) != null) {
+            System.out.println("server received: " + inputLine);
+            out.println("server acknowledges!!!");
+            Thread.sleep(500);
         }
     }
 }

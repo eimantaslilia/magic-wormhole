@@ -26,14 +26,18 @@ public class SenderCommand implements Runnable {
         try (var socket = new Socket("127.0.0.1", 4444);
              var out = new PrintWriter(socket.getOutputStream(), true);
              var in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
-                for (int i = 0; i < 10; i++) {
-                out.println("hello from sender: " + i);
-                String resp = in.readLine();
-                System.out.println(resp);
-                Thread.sleep(1000);
-            }
+            ping(out, in);
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private void ping(PrintWriter out, BufferedReader in) throws Exception {
+        for (int i = 0; i < 10; i++) {
+            out.println("hello from sender: " + i);
+            String resp = in.readLine();
+            System.out.println(resp);
+            Thread.sleep(500);
         }
     }
 }
