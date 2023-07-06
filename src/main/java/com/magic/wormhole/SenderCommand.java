@@ -25,8 +25,9 @@ public class SenderCommand implements Runnable {
     }
 
     private void send() {
-        try (var fromChannel = FileChannel.open(filePath, StandardOpenOption.READ);
-             var socketChannel = SocketChannel.open(new InetSocketAddress("localhost", 6666))) {
+        try {
+            var fromChannel = FileChannel.open(filePath, StandardOpenOption.READ);
+            var socketChannel = SocketChannel.open(new InetSocketAddress("localhost", 6666));
 
             if (Files.exists(filePath)) {
                 System.out.println("Sending file over network, filename: " + filePath);

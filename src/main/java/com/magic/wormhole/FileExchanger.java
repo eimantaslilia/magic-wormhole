@@ -12,7 +12,7 @@ import java.nio.channels.WritableByteChannel;
 public class FileExchanger {
 
     public void sendFile(FileChannel fromChannel, WritableByteChannel toChannel) {
-        try {
+        try (fromChannel; toChannel){
             ByteBuffer buffer = ByteBuffer.allocateDirect(4096);
             int bytesRead = fromChannel.read(buffer);
             while (bytesRead != -1) {

@@ -50,12 +50,7 @@ public class FileExchangerTest {
 
             fileExchanger.receiveFile(inChannel, fileChannel);
 
-            fileChannel.position(0);
-            var readBuffer = ByteBuffer.allocate(4096);
-            fileChannel.read(readBuffer);
-            readBuffer.flip();
-
-            String result = StandardCharsets.UTF_8.decode(readBuffer).toString();
+            String result = Files.readString(file);
             assertEquals("testing", result);
         }
     }
