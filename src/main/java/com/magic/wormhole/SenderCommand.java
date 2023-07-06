@@ -1,12 +1,10 @@
 package com.magic.wormhole;
 
-import org.springframework.stereotype.Component;
 import picocli.CommandLine;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-@Component
 @CommandLine.Command(name = "send")
 public class SenderCommand implements Runnable {
 
