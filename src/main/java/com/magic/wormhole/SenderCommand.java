@@ -31,7 +31,7 @@ public class SenderCommand implements Runnable {
 
             if (Files.exists(filePath)) {
                 System.out.println("Sending file over network, filename: " + filePath);
-                fileExchanger.sendFile(fromChannel, socketChannel);
+                fileExchanger.sendFile(fromChannel, socketChannel, filePath);
             } else {
                 System.out.println("Provide a file with the -p=<path> arg");
             }

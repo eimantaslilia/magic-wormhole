@@ -2,6 +2,7 @@ package com.magic.wormhole;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.springframework.util.SerializationUtils;
 
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
@@ -12,8 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class FileExchangerTest {
 
@@ -31,10 +31,21 @@ public class FileExchangerTest {
             var buffer = ByteBuffer.allocate(4096);
             var outChannel = new WritableTestByteChannel(buffer);
 
-            fileExchanger.sendFile(fileChannel, outChannel);
+            fileExchanger.sendFile(fileChannel, outChannel, file);
             buffer.flip();
 
-            String result = StandardCharsets.UTF_8.decode(buffer).toString();
+            int headerSize = buffer.getInt();
+            byte[] headerBytes = new byte[headerSize];
+            buffer.get(headerBytes);
+            var header = (FileExchanger.Header) SerializationUtils.deserialize(headerBytes);
+            assertNotNull(header);
+            assertEquals("test.txt", header.filename());
+            assertEquals("John", header.from());
+
+            var content = new byte[buffer.remaining()];
+            buffer.get(content);
+
+            String result = new String(content, StandardCharsets.UTF_8);
             assertEquals("Test data", result);
         }
     }
