@@ -11,8 +11,6 @@ import java.nio.channels.SocketChannel;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 public class FileExchanger {
 
@@ -46,10 +44,9 @@ public class FileExchanger {
         try (fromChannel) {
             var buffer = ByteBuffer.allocateDirect(4096);
             var header = readHeader(fromChannel, buffer);
-            var newFileName = createFileName(header.filename());
-            var newFilePath = Paths.get(pathTo.toString(), newFileName);
+            var newFilePath = Paths.get(pathTo.toString(), header.filename());
             readContent(buffer, fromChannel, newFilePath);
-            System.out.println("Saved file to: " + newFilePath);
+            System.out.println("File with size [" + header.fileSize() + "] saved to: " + newFilePath);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -83,12 +80,5 @@ public class FileExchanger {
 
         buffer.compact();
         return header;
-    }
-
-    private static String createFileName(String filename) {
-        LocalDateTime now = LocalDateTime.now();
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd.hh.mm.ss");
-        String formattedDate = dateTimeFormatter.format(now);
-        return filename + "_" + formattedDate + ".pdf";
     }
 }
