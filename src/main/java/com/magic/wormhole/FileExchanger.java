@@ -4,40 +4,31 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.SerializationUtils;
 
 import java.io.IOException;
-import java.io.Serializable;
+import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
-import java.nio.channels.WritableByteChannel;
+import java.nio.channels.SocketChannel;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Component
 public class FileExchanger {
 
-    record Header(String filename, String from) implements Serializable {
-        public static final int HEADER_SIZE_IN_BYTES = 4;
+    public void sendFile(Path filePath) {
+        try (var fromChannel = FileChannel.open(filePath, StandardOpenOption.READ);
+             var toChannel = SocketChannel.open(new InetSocketAddress("localhost", 6666))) {
 
-        public static ByteBuffer asByteBuffer(Path filePath) {
-            var header = new Header(filePath.getFileName().toString(), "John");
-            var headerBytes = SerializationUtils.serialize(header);
-
-            var headerBuffer = ByteBuffer.allocate(HEADER_SIZE_IN_BYTES + headerBytes.length);
-            headerBuffer.putInt(headerBytes.length);
-            headerBuffer.put(headerBytes);
-
-            headerBuffer.flip();
-
-            return headerBuffer;
-        }
-    }
-
-    public void sendFile(FileChannel fromChannel, WritableByteChannel toChannel, Path filePath) {
-        try (fromChannel; toChannel) {
+            //write buffer
             var headerBuffer = Header.asByteBuffer(filePath);
             while (headerBuffer.hasRemaining()) {
                 toChannel.write(headerBuffer);
             }
 
+            //write content
             ByteBuffer buffer = ByteBuffer.allocateDirect(4096);
             int bytesRead = fromChannel.read(buffer);
             while (bytesRead != -1) {
@@ -53,20 +44,44 @@ public class FileExchanger {
         }
     }
 
-    public void receiveFile(ReadableByteChannel fromChannel, FileChannel toChannel) {
-        try (fromChannel; toChannel){
+    public void receiveFile(ReadableByteChannel fromChannel, Path pathTo) {
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd.hh.mm.ss");
+        String formattedDate = dateTimeFormatter.format(now);
+        String fileName = "incoming_" + formattedDate + ".pdf";
+
+        try (var fileChannel = FileChannel.open(Paths.get(pathTo.toString(), fileName), StandardOpenOption.CREATE, StandardOpenOption.WRITE);
+             fromChannel) {
             ByteBuffer buffer = ByteBuffer.allocateDirect(4096);
+            //read for the first time, has a header
             int bytesRead = fromChannel.read(buffer);
+            buffer.flip();
+
+//            int headerLength = ;
+            byte[] headerBytes = new byte[buffer.getInt()];
+            buffer.get(headerBytes);
+            var header = (Header) SerializationUtils.deserialize(headerBytes);
+            System.out.println(header);
+
+
+            buffer.compact();
+            bytesRead = fromChannel.read(buffer);
+
             while (bytesRead != -1) {
-                buffer.flip();
+                buffer.flip();  // flip buffer for reading
                 while (buffer.hasRemaining()) {
-                    toChannel.write(buffer);
+                    fileChannel.write(buffer);
                 }
-                buffer.clear();
+                buffer.compact();  // prepare buffer for writing
                 bytesRead = fromChannel.read(buffer);
             }
+
+            buffer.flip();
+            while (buffer.hasRemaining()) {
+                fileChannel.write(buffer);
+            }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
 }
