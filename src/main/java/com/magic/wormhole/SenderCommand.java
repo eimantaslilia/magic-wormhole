@@ -22,7 +22,7 @@ public class SenderCommand implements Runnable {
 
     private void send() {
         if (Files.exists(filePath)) {
-            System.out.println("Sending file, filename: " + filePath);
+            System.out.println("Sending file: " + filePath);
             fileExchanger.sendFile(filePath);
         } else {
             System.out.println("Provide a file with the -p=<path> arg");

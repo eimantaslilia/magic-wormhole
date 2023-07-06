@@ -41,7 +41,7 @@ public class DummyServer implements ApplicationRunner {
     }
 
     private void handleConnection(SocketChannel socketChannel) {
-        System.out.println("handling incoming request...will save to: " + receivingPath);
+        System.out.println("handling incoming request...");
         fileExchanger.receiveFile(socketChannel, receivingPath);
     }
 }

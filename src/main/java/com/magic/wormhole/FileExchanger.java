@@ -1,6 +1,5 @@
 package com.magic.wormhole;
 
-import org.springframework.stereotype.Component;
 import org.springframework.util.SerializationUtils;
 
 import java.io.IOException;
@@ -15,7 +14,6 @@ import java.nio.file.StandardOpenOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-@Component
 public class FileExchanger {
 
     public void sendFile(Path filePath) {
@@ -45,28 +43,21 @@ public class FileExchanger {
     }
 
     public void receiveFile(ReadableByteChannel fromChannel, Path pathTo) {
-        LocalDateTime now = LocalDateTime.now();
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd.hh.mm.ss");
-        String formattedDate = dateTimeFormatter.format(now);
-        String fileName = "incoming_" + formattedDate + ".pdf";
+        try (fromChannel) {
+            var buffer = ByteBuffer.allocateDirect(4096);
+            var header = readHeader(fromChannel, buffer);
+            var newFileName = createFileName(header.filename());
+            var newFilePath = Paths.get(pathTo.toString(), newFileName);
+            readContent(buffer, fromChannel, newFilePath);
+            System.out.println("Saved file to: " + newFilePath);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
-        try (var fileChannel = FileChannel.open(Paths.get(pathTo.toString(), fileName), StandardOpenOption.CREATE, StandardOpenOption.WRITE);
-             fromChannel) {
-            ByteBuffer buffer = ByteBuffer.allocateDirect(4096);
-            //read for the first time, has a header
+    private void readContent(ByteBuffer buffer, ReadableByteChannel fromChannel, Path newFilePath) throws IOException {
+        try (var fileChannel = FileChannel.open(newFilePath, StandardOpenOption.CREATE, StandardOpenOption.WRITE)) {
             int bytesRead = fromChannel.read(buffer);
-            buffer.flip();
-
-//            int headerLength = ;
-            byte[] headerBytes = new byte[buffer.getInt()];
-            buffer.get(headerBytes);
-            var header = (Header) SerializationUtils.deserialize(headerBytes);
-            System.out.println(header);
-
-
-            buffer.compact();
-            bytesRead = fromChannel.read(buffer);
-
             while (bytesRead != -1) {
                 buffer.flip();  // flip buffer for reading
                 while (buffer.hasRemaining()) {
@@ -80,8 +71,24 @@ public class FileExchanger {
             while (buffer.hasRemaining()) {
                 fileChannel.write(buffer);
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
+    }
+
+    private Header readHeader(ReadableByteChannel fromChannel, ByteBuffer buffer) throws IOException {
+        fromChannel.read(buffer);
+        buffer.flip();
+        byte[] headerBytes = new byte[buffer.getInt()];
+        buffer.get(headerBytes);
+        var header = (Header) SerializationUtils.deserialize(headerBytes);
+
+        buffer.compact();
+        return header;
+    }
+
+    private static String createFileName(String filename) {
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd.hh.mm.ss");
+        String formattedDate = dateTimeFormatter.format(now);
+        return filename + "_" + formattedDate + ".pdf";
     }
 }
