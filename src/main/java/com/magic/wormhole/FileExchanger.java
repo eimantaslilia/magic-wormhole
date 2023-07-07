@@ -16,7 +16,7 @@ public class FileExchanger {
 
     public void sendFile(Path filePath) {
         try (var fromChannel = FileChannel.open(filePath, StandardOpenOption.READ);
-             var toChannel = SocketChannel.open(new InetSocketAddress("localhost", 6666))) {
+             var toChannel = SocketChannel.open(new InetSocketAddress("localhost", 8090))) {
 
             //write buffer
             var headerBuffer = Header.asByteBuffer(filePath);

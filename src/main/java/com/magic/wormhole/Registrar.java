@@ -16,17 +16,17 @@ public class Registrar {
     private Registry registry;
 
     @PostMapping(value = "/register", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> register(HttpServletRequest request, @RequestBody RegistrationRequest registrationRequest) {
-        System.out.println("registering:" + registrationRequest);
+    public HttpStatus register(HttpServletRequest request, @RequestBody RegistrationRequest registrationRequest) {
+        System.out.println("Registering: " + registrationRequest);
         String hostname = request.getRemoteAddr();
         registry.register(registrationRequest, hostname);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return HttpStatus.CREATED;
     }
 
     @GetMapping("/fetch/{clientName}")
     public ResponseEntity<ClientAddress> getClientAddress(@PathVariable String clientName) {
         var address = registry.getAddress(clientName);
-        System.out.println("Request made to fetch client by name: " + clientName + ", found: " + address);
+        System.out.println("Fetching client by name: [" + clientName + "], found: " + address);
         return ResponseEntity.of(Optional.ofNullable(address));
     }
 }
