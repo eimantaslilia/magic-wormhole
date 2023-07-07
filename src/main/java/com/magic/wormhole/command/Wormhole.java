@@ -1,4 +1,4 @@
-package com.magic.wormhole;
+package com.magic.wormhole.command;
 
 import picocli.CommandLine;
 

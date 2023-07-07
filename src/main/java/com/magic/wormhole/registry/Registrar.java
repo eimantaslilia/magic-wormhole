@@ -1,4 +1,4 @@
-package com.magic.wormhole;
+package com.magic.wormhole.registry;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

@@ -1,5 +1,7 @@
-package com.magic.wormhole;
+package com.magic.wormhole.command;
 
+import com.magic.wormhole.FileExchanger;
+import com.magic.wormhole.registry.RegistrarClient;
 import picocli.CommandLine;
 
 import java.nio.file.Files;

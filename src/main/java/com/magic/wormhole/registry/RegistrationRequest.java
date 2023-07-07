@@ -1,4 +1,4 @@
-package com.magic.wormhole;
+package com.magic.wormhole.registry;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;

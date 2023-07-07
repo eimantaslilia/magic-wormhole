@@ -1,5 +1,8 @@
-package com.magic.wormhole;
+package com.magic.wormhole.command;
 
+import com.magic.wormhole.FileExchanger;
+import com.magic.wormhole.registry.RegistrarClient;
+import com.magic.wormhole.registry.RegistrationRequest;
 import picocli.CommandLine;
 
 import java.net.InetSocketAddress;

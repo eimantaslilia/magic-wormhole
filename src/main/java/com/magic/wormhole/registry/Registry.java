@@ -1,4 +1,4 @@
-package com.magic.wormhole;
+package com.magic.wormhole.registry;
 
 import org.springframework.stereotype.Component;
 

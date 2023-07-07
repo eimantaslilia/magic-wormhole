@@ -1,5 +1,6 @@
 package com.magic.wormhole;
 
+import com.magic.wormhole.registry.ClientAddress;
 import org.springframework.util.SerializationUtils;
 
 import java.io.IOException;

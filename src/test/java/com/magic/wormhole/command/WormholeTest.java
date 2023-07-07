@@ -1,5 +1,7 @@
-package com.magic.wormhole;
+package com.magic.wormhole.command;
 
+import com.magic.wormhole.command.SenderCommand;
+import com.magic.wormhole.command.Wormhole;
 import org.junit.jupiter.api.Test;
 import picocli.CommandLine;
 

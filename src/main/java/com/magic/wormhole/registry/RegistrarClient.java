@@ -1,4 +1,4 @@
-package com.magic.wormhole;
+package com.magic.wormhole.registry;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.reactive.function.client.WebClient;
