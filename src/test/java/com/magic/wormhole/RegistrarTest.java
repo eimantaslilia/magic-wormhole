@@ -9,6 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -34,5 +35,19 @@ class RegistrarTest {
         var result = registry.getAddress("receiver");
 
         assertEquals(result.port(), 9010);
+    }
+
+    @Test
+    void shouldFetchClientInfo() throws Exception {
+        registry.register(new RegistrationRequest("recv", 1020), "localhost");
+
+        mockMvc.perform(get("/fetch/recv"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void shouldNotFindClientInfo() throws Exception {
+        mockMvc.perform(get("/fetch/recv"))
+                .andExpect(status().isNotFound());
     }
 }
