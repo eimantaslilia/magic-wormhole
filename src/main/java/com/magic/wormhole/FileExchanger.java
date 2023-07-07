@@ -19,13 +19,11 @@ public class FileExchanger {
         try (var fromChannel = FileChannel.open(filePath, StandardOpenOption.READ);
              var toChannel = SocketChannel.open(new InetSocketAddress(address.hostname(), address.port()))) {
 
-            //write buffer
             var headerBuffer = Header.asByteBuffer(filePath);
             while (headerBuffer.hasRemaining()) {
                 toChannel.write(headerBuffer);
             }
 
-            //write content
             ByteBuffer buffer = ByteBuffer.allocateDirect(4096);
             int bytesRead = fromChannel.read(buffer);
             while (bytesRead != -1) {
@@ -57,11 +55,11 @@ public class FileExchanger {
         try (var fileChannel = FileChannel.open(newFilePath, StandardOpenOption.CREATE, StandardOpenOption.WRITE)) {
             int bytesRead = fromChannel.read(buffer);
             while (bytesRead != -1) {
-                buffer.flip();  // flip buffer for reading
+                buffer.flip();
                 while (buffer.hasRemaining()) {
                     fileChannel.write(buffer);
                 }
-                buffer.compact();  // prepare buffer for writing
+                buffer.compact();
                 bytesRead = fromChannel.read(buffer);
             }
 

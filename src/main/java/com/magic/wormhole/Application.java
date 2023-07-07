@@ -23,12 +23,10 @@ public class Application {
     }
 
     private static void runCommand(String[] args) {
-		System.out.println("Wormhole is open...");
 		new CommandLine(new Wormhole()).execute(args);
     }
 
     private static void runApp(String[] args) {
-        System.out.println("Might this need later?");
         SpringApplication.run(Application.class, args);
     }
 }
