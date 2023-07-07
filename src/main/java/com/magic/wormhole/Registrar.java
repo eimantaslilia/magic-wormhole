@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Optional;
 
 @RestController
 public class Registrar {
@@ -16,15 +17,16 @@ public class Registrar {
 
     @PostMapping(value = "/register", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> register(HttpServletRequest request, @RequestBody RegistrationRequest registrationRequest) {
+        System.out.println("registering:" + registrationRequest);
         String hostname = request.getRemoteAddr();
         registry.register(registrationRequest, hostname);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @GetMapping("/fetch/{clientName}")
-    public ClientAddress getClientAddress(@PathVariable String clientName) {
+    public ResponseEntity<ClientAddress> getClientAddress(@PathVariable String clientName) {
         var address = registry.getAddress(clientName);
         System.out.println("Request made to fetch client by name: " + clientName + ", found: " + address);
-        return address;
+        return ResponseEntity.of(Optional.ofNullable(address));
     }
 }
