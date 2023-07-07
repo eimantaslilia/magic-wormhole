@@ -4,6 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 @Component
 public class RegistrarClient {
@@ -20,15 +21,15 @@ public class RegistrarClient {
     }
 
     public void register(RegistrationRequest request) {
-        var response = WebClient.create()
+        WebClient.create()
                 .post()
                 .uri(URI + "/register")
                 .bodyValue(request)
                 .retrieve()
-                .bodyToMono(HttpStatus.class)
+                .onStatus(HttpStatus::isError, clientResponse ->
+                        clientResponse.bodyToMono(String.class)
+                                .flatMap(err -> Mono.error(new RuntimeException("Failed to register due to: " + err))))
+                .bodyToMono(Void.class)
                 .block();
-        if (response != HttpStatus.CREATED) {
-            throw new RuntimeException("Failed to register...");
-        }
     }
 }

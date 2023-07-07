@@ -30,11 +30,20 @@ class RegistrarTest {
         mockMvc.perform(post("/register")
                         .content(objectMapper.writeValueAsString(registration))
                         .contentType(MediaType.APPLICATION_JSON_VALUE))
-                .andExpect(status().isCreated());
+                .andExpect(status().isOk());
 
         var result = registry.getAddress("receiver");
 
         assertEquals(result.port(), 9010);
+    }
+
+    @Test
+    void shouldNotRegister() throws Exception {
+        var registration = new RegistrationRequest(null, 9010);
+        mockMvc.perform(post("/register")
+                        .content(objectMapper.writeValueAsString(registration))
+                        .contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
