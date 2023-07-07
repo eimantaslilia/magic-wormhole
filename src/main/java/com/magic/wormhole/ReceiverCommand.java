@@ -15,7 +15,6 @@ public class ReceiverCommand implements Runnable {
 
     private static final int DEFAULT_PORT = 8090;
     private static final String DEFAULT_NAME = "receiver";
-    private final FileExchanger fileExchanger = new FileExchanger();
 
     @CommandLine.Option(names = "-incomingPath", required = true, description = "Path of the receiving file directory")
     private Path fileDir;
@@ -27,7 +26,6 @@ public class ReceiverCommand implements Runnable {
     private String name = DEFAULT_NAME;
 
     private final ExecutorService executors = Executors.newCachedThreadPool();
-    private final RegistrarClient registrarClient = new RegistrarClient();
 
     @Override
     public void run() {
@@ -35,7 +33,7 @@ public class ReceiverCommand implements Runnable {
             throw new IllegalArgumentException("Provided path is not a directory, :" + fileDir);
         }
 
-        registrarClient.register(new RegistrationRequest(name, port));
+        RegistrarClient.register(new RegistrationRequest(name, port));
 
         try (var serverChannel = ServerSocketChannel.open()) {
             serverChannel.bind(new InetSocketAddress(port));
@@ -52,6 +50,6 @@ public class ReceiverCommand implements Runnable {
 
     private void handleConnection(SocketChannel socketChannel) {
         System.out.println("handling request...");
-        fileExchanger.receiveFile(socketChannel, fileDir);
+        FileExchanger.receiveFile(socketChannel, fileDir);
     }
 }

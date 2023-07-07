@@ -1,16 +1,14 @@
 package com.magic.wormhole;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
-@Component
 public class RegistrarClient {
 
     private static final String URI = "localhost:8080";
 
-    public ClientAddress fetchClientAddress(String clientName) {
+    public static ClientAddress fetchClientAddress(String clientName) {
         return WebClient.create()
                 .get()
                 .uri(URI + "/fetch/" + clientName)
@@ -22,7 +20,7 @@ public class RegistrarClient {
                 .getBody();
     }
 
-    public void register(RegistrationRequest request) {
+    public static void register(RegistrationRequest request) {
         WebClient.create()
                 .post()
                 .uri(URI + "/register")

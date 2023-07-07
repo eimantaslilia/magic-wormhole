@@ -14,7 +14,7 @@ import java.nio.file.StandardOpenOption;
 
 public class FileExchanger {
 
-    public void sendFile(Path filePath, ClientAddress address) {
+    public static void sendFile(Path filePath, ClientAddress address) {
         try (var fromChannel = FileChannel.open(filePath, StandardOpenOption.READ);
              var toChannel = SocketChannel.open(new InetSocketAddress(address.hostname(), address.port()))) {
 
@@ -40,7 +40,7 @@ public class FileExchanger {
         }
     }
 
-    public void receiveFile(ReadableByteChannel fromChannel, Path pathTo) {
+    public static void receiveFile(ReadableByteChannel fromChannel, Path pathTo) {
         try (fromChannel) {
             var buffer = ByteBuffer.allocateDirect(4096);
             var header = readHeader(fromChannel, buffer);
@@ -52,7 +52,7 @@ public class FileExchanger {
         }
     }
 
-    private void readContent(ByteBuffer buffer, ReadableByteChannel fromChannel, Path newFilePath) throws IOException {
+    private static void readContent(ByteBuffer buffer, ReadableByteChannel fromChannel, Path newFilePath) throws IOException {
         try (var fileChannel = FileChannel.open(newFilePath, StandardOpenOption.CREATE, StandardOpenOption.WRITE)) {
             int bytesRead = fromChannel.read(buffer);
             while (bytesRead != -1) {
@@ -71,7 +71,7 @@ public class FileExchanger {
         }
     }
 
-    private Header readHeader(ReadableByteChannel fromChannel, ByteBuffer buffer) throws IOException {
+    private static Header readHeader(ReadableByteChannel fromChannel, ByteBuffer buffer) throws IOException {
         fromChannel.read(buffer);
         buffer.flip();
         byte[] headerBytes = new byte[buffer.getInt()];

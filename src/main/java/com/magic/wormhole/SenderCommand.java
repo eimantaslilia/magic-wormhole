@@ -15,22 +15,16 @@ public class SenderCommand implements Runnable {
     @CommandLine.Option(names = "-dest", description = "Name of the receiver")
     private String destination = DEFAULT_RECEIVER;
 
-    private final FileExchanger fileExchanger = new FileExchanger();
-    private final RegistrarClient registrarClient = new RegistrarClient();
-
     @Override
     public void run() {
         send();
     }
 
     private void send() {
-
-
         if (Files.exists(filePath)) {
-            var address = registrarClient.fetchClientAddress(destination);
-
+            var address = RegistrarClient.fetchClientAddress(destination);
             System.out.println("Sending file: " + filePath + " to: " + address);
-            fileExchanger.sendFile(filePath, address);
+            FileExchanger.sendFile(filePath, address);
         } else {
             System.out.println("Provide a file with the -p=<path> arg");
         }
