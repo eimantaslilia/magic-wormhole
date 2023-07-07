@@ -14,9 +14,9 @@ import java.nio.file.StandardOpenOption;
 
 public class FileExchanger {
 
-    public void sendFile(Path filePath) {
+    public void sendFile(Path filePath, ClientAddress address) {
         try (var fromChannel = FileChannel.open(filePath, StandardOpenOption.READ);
-             var toChannel = SocketChannel.open(new InetSocketAddress("localhost", 8090))) {
+             var toChannel = SocketChannel.open(new InetSocketAddress(address.hostname(), address.port()))) {
 
             //write buffer
             var headerBuffer = Header.asByteBuffer(filePath);
