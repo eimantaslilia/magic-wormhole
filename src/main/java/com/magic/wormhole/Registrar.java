@@ -7,7 +7,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Optional;
 
 @RestController
 public class Registrar {
@@ -23,8 +22,9 @@ public class Registrar {
     }
 
     @GetMapping("/fetch/{clientName}")
-    public ResponseEntity<ClientAddress> getClientAddress(@PathVariable String clientName) {
+    public ClientAddress getClientAddress(@PathVariable String clientName) {
         var address = registry.getAddress(clientName);
-        return ResponseEntity.of(Optional.ofNullable(address));
+        System.out.println("Request made to fetch client by name: " + clientName + ", found: " + address);
+        return address;
     }
 }

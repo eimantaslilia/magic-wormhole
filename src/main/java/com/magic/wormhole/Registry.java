@@ -12,7 +12,6 @@ public class Registry {
 
     public void register(RegistrationRequest req, String hostname) {
         addressMap.put(req.name(), new ClientAddress(hostname, req.port()));
-        //name, hostname, port
     }
 
     public ClientAddress getAddress(String clientName) {
