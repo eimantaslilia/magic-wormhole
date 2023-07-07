@@ -11,7 +11,10 @@ public class Registry {
     private final Map<String, ClientAddress> addressMap = new HashMap<>();
 
     public void register(RegistrationRequest req, String hostname) {
-        addressMap.put(req.name(), new ClientAddress(hostname, req.port()));
+        var address = new ClientAddress(hostname, req.port());
+        addressMap.put(req.name(), address);
+
+        System.out.println("New registry entry, name: " + req.name() + " address: " + address);
     }
 
     public ClientAddress getAddress(String clientName) {

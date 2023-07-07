@@ -21,8 +21,8 @@ public class Registrar {
 
     @PostMapping(value = "/register", consumes = MediaType.APPLICATION_JSON_VALUE)
     public void register(HttpServletRequest request, @RequestBody @Valid RegistrationRequest registrationRequest) {
-        System.out.println("Registering: " + registrationRequest);
         String hostname = request.getRemoteAddr();
+        System.out.println("Registering: " + registrationRequest + " with hostname: " + hostname);
         registry.register(registrationRequest, hostname);
     }
 
