@@ -14,8 +14,11 @@ public class SenderCommand implements Runnable {
     @CommandLine.Option(names = "-p", required = true, description = "Path of the file")
     private Path filePath;
 
-    @CommandLine.Option(names = "-dest", description = "Name of the receiver")
-    private String destination = DEFAULT_RECEIVER;
+    @CommandLine.Option(names = "-registryHost", description = "Hostname of the registry")
+    private String registryHost;
+
+    @CommandLine.Option(names = "-receiver", description = "Name of the receiver")
+    private String receiver = DEFAULT_RECEIVER;
 
     @Override
     public void run() {
@@ -24,7 +27,7 @@ public class SenderCommand implements Runnable {
 
     private void send() {
         if (Files.exists(filePath)) {
-            var address = RegistrarClient.fetchClientAddress(destination);
+            var address = RegistrarClient.fetchClientAddress(registryHost, receiver);
             System.out.println("Sending file: " + filePath + " to: " + address);
             FileExchanger.sendFile(filePath, address);
         } else {
