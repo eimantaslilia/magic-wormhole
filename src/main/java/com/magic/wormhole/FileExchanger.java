@@ -24,7 +24,7 @@ public class FileExchanger {
                 toChannel.write(headerBuffer);
             }
 
-            ByteBuffer buffer = ByteBuffer.allocateDirect(4096);
+            ByteBuffer buffer = ByteBuffer.allocateDirect(64000);
             int bytesRead = fromChannel.read(buffer);
             while (bytesRead != -1) {
                 buffer.flip();
@@ -41,7 +41,7 @@ public class FileExchanger {
 
     public static void receiveFile(ReadableByteChannel fromChannel, Path pathTo) {
         try (fromChannel) {
-            var buffer = ByteBuffer.allocateDirect(4096);
+            var buffer = ByteBuffer.allocateDirect(64000);
             var header = readHeader(fromChannel, buffer);
             var newFilePath = Paths.get(pathTo.toString(), header.filename());
             readContent(buffer, fromChannel, newFilePath);
