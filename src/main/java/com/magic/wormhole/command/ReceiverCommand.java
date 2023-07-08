@@ -19,11 +19,11 @@ public class ReceiverCommand implements Runnable {
     private static final int DEFAULT_PORT = 8090;
     private static final String DEFAULT_NAME = "receiver";
 
-    @CommandLine.Option(names = "-incomingPath", required = true, description = "Path of the receiving file directory")
+    @CommandLine.Option(names = "-saveTo", required = true, description = "Path of the receiving file directory")
     private Path fileDir;
 
-    @CommandLine.Option(names = "-registryHost", description = "Hostname of the registry")
-    private String registryHost;
+    @CommandLine.Option(names = "-registryIP", description = "IP of the registry")
+    private String registryIP;
 
     @CommandLine.Option(names = "-port", description = "Port of the receiver")
     private int port = DEFAULT_PORT;
@@ -39,7 +39,7 @@ public class ReceiverCommand implements Runnable {
             throw new IllegalArgumentException("Provided path is not a directory, :" + fileDir);
         }
 
-        RegistrarClient.register(registryHost, new RegistrationRequest(name, port));
+        RegistrarClient.register(registryIP, new RegistrationRequest(name, port));
 
         try (var serverChannel = ServerSocketChannel.open()) {
             serverChannel.bind(new InetSocketAddress(port));

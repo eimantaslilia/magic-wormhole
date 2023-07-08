@@ -11,10 +11,10 @@ public class RegistrarClient {
     private static final String DEFAULT_HOST = "localhost";
     private static final String DEFAULT_PORT = "8080";
 
-    public static ClientAddress fetchClientAddress(String registryHost, String clientName) {
+    public static ClientAddress fetchClientAddress(String registryIP, String clientName) {
         return WebClient.create()
                 .get()
-                .uri(getUri(registryHost) + "/fetch/" + clientName)
+                .uri(getUri(registryIP) + "/fetch/" + clientName)
                 .retrieve()
                 .onStatus(HttpStatus::isError, clientResponse -> Mono.error(new RuntimeException("Server returned an error when fetching client by name: " + clientName)))
                 .toEntity(ClientAddress.class)
@@ -23,10 +23,10 @@ public class RegistrarClient {
                 .getBody();
     }
 
-    public static void register(String registryHost, RegistrationRequest request) {
+    public static void register(String registryIP, RegistrationRequest request) {
         WebClient.create()
                 .post()
-                .uri(getUri(registryHost) + "/register")
+                .uri(getUri(registryIP) + "/register")
                 .bodyValue(request)
                 .retrieve()
                 .onStatus(HttpStatus::isError, clientResponse ->
@@ -36,8 +36,8 @@ public class RegistrarClient {
                 .block();
     }
 
-    private static String getUri(String registryHost) {
-        String hostname = Optional.ofNullable(registryHost)
+    private static String getUri(String registryIP) {
+        String hostname = Optional.ofNullable(registryIP)
                 .map(host -> "http://" + host)
                 .orElse(DEFAULT_HOST);
         return hostname + ":" + DEFAULT_PORT;

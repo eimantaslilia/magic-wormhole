@@ -13,9 +13,9 @@ getting things from one computer to another
   - supply receivers `host` and `port` to sender  
     `java -jar ./target/magic.wormhole-0.0.1-SNAPSHOT.jar`
 - run the receiver  
-`java -jar ./target/magic.wormhole-0.0.1-SNAPSHOT.jar recv -incomingPath=<directoryPath>`
+`java -jar ./target/magic.wormhole-0.0.1-SNAPSHOT.jar recv -saveTo=<directoryPath> -registryIP=<host ip>`
 - run the sender  
-`java -jar ./target/magic.wormhole-0.0.1-SNAPSHOT.jar send -p=<filePath>`
+`java -jar ./target/magic.wormhole-0.0.1-SNAPSHOT.jar send -p=<filePath> -registryIP=<host ip>`
 
 Additional CLI arguments can be viewed by running  
 `java -jar <jar> <send/recv>`
